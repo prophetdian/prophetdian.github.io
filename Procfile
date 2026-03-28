@@ -1,1 +1,1 @@
-web: node server/_core/index.ts
+web: npm run start
