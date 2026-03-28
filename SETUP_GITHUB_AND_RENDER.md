@@ -1,57 +1,68 @@
-# Complete Setup Guide: GitHub Pages + Railway Backend
+# Complete Setup Guide: GitHub Pages + Render Backend
 
-This guide walks you through deploying the Prophet Dian app to GitHub Pages (frontend) and Railway (backend).
+This guide walks you through deploying the Prophet Dian app to GitHub Pages (frontend) and Render (backend).
 
 ## Architecture Overview
 
 ```
 GitHub Pages (Frontend)
     ↓ (API calls)
-Railway Backend (Node.js + PostgreSQL)
+Render Backend (Node.js + PostgreSQL)
     ↓ (PayPal API)
 PayPal Payment Processing
 ```
 
-## Part 1: Deploy Backend to Railway
+## Part 1: Deploy Backend to Render
 
-### Step 1.1: Create Railway Account
+### Step 1.1: Create Render Account
 
-1. Go to https://railway.app
-2. Click "Start Building"
+1. Go to https://render.com
+2. Click "Get Started"
 3. Sign up with GitHub (recommended)
-4. Authorize Railway to access your GitHub account
+4. Authorize Render to access your GitHub account
 
-### Step 1.2: Create New Railway Project
+### Step 1.2: Create PostgreSQL Database
 
-1. In Railway dashboard, click "New Project"
-2. Select "Deploy from GitHub repo"
-3. Search for and select `prophetdian/prophetdian.github.io`
-4. Click "Deploy Now"
+1. In Render dashboard, click "New +"
+2. Select "PostgreSQL"
+3. Configure:
+   - **Name**: `prophet-dian-db`
+   - **Database**: `prophet_dian`
+   - **User**: `prophet_user`
+   - **Region**: Choose closest to you
+   - **Plan**: Free tier
+4. Click "Create Database"
+5. Wait for initialization (2-3 minutes)
+6. **Copy the Internal Database URL** - you'll need this
 
-Railway will automatically:
-- Detect Node.js project
-- Install dependencies
-- Build the app
-- Start the server
+### Step 1.3: Create Web Service
 
-### Step 1.3: Add PostgreSQL Database
+1. In Render dashboard, click "New +"
+2. Select "Web Service"
+3. Connect your GitHub repository:
+   - Select `prophetdian/prophetdian.github.io`
+   - Branch: `main`
+4. Configure:
+   - **Name**: `prophet-dian-api`
+   - **Runtime**: `Node`
+   - **Build Command**: `pnpm install && pnpm build`
+   - **Start Command**: `node server/_core/index.ts`
+   - **Plan**: Free tier
+5. Click "Create Web Service"
 
-1. In your Railway project, click "Add Service"
-2. Select "Database" → "PostgreSQL"
-3. Railway creates a PostgreSQL instance
-4. `DATABASE_URL` environment variable is automatically set
+### Step 1.4: Add Environment Variables
 
-### Step 1.4: Configure Environment Variables
+In Render Web Service → Environment tab, add:
 
-In Railway project dashboard:
-
-1. Click on your service
-2. Go to "Variables" tab
-3. Add each variable (click "New Variable"):
-
-**Authentication & Core:**
+**Database (Required):**
 ```
-JWT_SECRET=generate_with: openssl rand -hex 32
+DATABASE_URL=postgresql://prophet_user:PASSWORD@HOST:5432/prophet_dian
+```
+(Use the Internal Database URL from Step 1.2)
+
+**Authentication:**
+```
+JWT_SECRET=your_secure_random_string
 NODE_ENV=production
 PORT=3000
 ```
@@ -86,39 +97,32 @@ VITE_APP_TITLE=Prophet Dian
 VITE_APP_LOGO=https://your-cdn.com/logo.png
 ```
 
-### Step 1.5: Get Your Railway URL
+Click "Save Changes" - Render will redeploy automatically.
 
-1. In Railway project, go to "Deployments"
-2. Click on the latest deployment
-3. Find "Public URL" (e.g., `https://prophetdian-prod.up.railway.app`)
-4. **Copy this URL** - you'll need it for the frontend
+### Step 1.5: Get Your Render URL
+
+1. In Render Web Service dashboard
+2. Find the **Service URL** at the top (e.g., `https://prophet-dian.onrender.com`)
+3. **Copy this URL** - you'll need it for the frontend
 
 ### Step 1.6: Run Database Migrations
 
-Connect to Railway and run migrations:
-
-**Option A: Using Railway CLI**
+1. In Render Web Service, click "Shell" tab
+2. Run:
 ```bash
-npm install -g @railway/cli
-railway login
-railway link
-railway run pnpm drizzle-kit push
+pnpm drizzle-kit push
 ```
 
-**Option B: Using Railway Dashboard**
-1. Go to PostgreSQL service
-2. Click "Connect" tab
-3. Use the connection string to connect with a database client
-4. Run the SQL migrations manually
+This initializes your database schema.
 
 ### Step 1.7: Verify Backend is Running
 
 Test your backend:
 ```bash
-curl https://your-railway-url.up.railway.app/api/trpc/auth.me
+curl https://your-render-url.onrender.com/api/trpc/auth.me
 ```
 
-You should get a response (may be an error, but the server is responding).
+You should get a response from the server.
 
 ---
 
@@ -182,20 +186,20 @@ git checkout main
 
 GitHub will deploy the app to `https://prophetdian.github.io`
 
-### Step 2.4: Configure Frontend to Use Railway Backend
+### Step 2.4: Configure Frontend to Use Render Backend
 
-The frontend needs to know the Railway backend URL. Update the environment:
+The frontend needs to know the Render backend URL.
 
-**In `client/src/lib/trpc.ts` or similar:**
+**Update `client/src/lib/trpc.ts`:**
 
-Change the API URL from Manus to Railway:
+Change the API URL:
 
 ```typescript
 // Before (Manus)
 const apiUrl = "https://prophetdia-jsyacvgb.manus.space";
 
-// After (Railway)
-const apiUrl = process.env.VITE_API_URL || "https://your-railway-url.up.railway.app";
+// After (Render)
+const apiUrl = process.env.VITE_API_URL || "https://your-render-url.onrender.com";
 ```
 
 Then rebuild and redeploy:
@@ -211,12 +215,12 @@ git subtree push --prefix dist origin gh-pages
 ### Test Frontend
 1. Visit https://prophetdian.github.io
 2. App should load
-3. Check browser console for errors
+3. Check browser console (F12) for errors
 
 ### Test Backend Connection
 1. Try to log in
-2. Check Network tab in DevTools
-3. Verify API calls go to Railway URL
+2. Open DevTools → Network tab
+3. Verify API calls go to Render URL
 
 ### Test Payments
 1. Register a user
@@ -240,22 +244,20 @@ git subtree push --prefix dist origin gh-pages
 
 ### Backend Not Responding
 
-**Check Railway logs:**
-1. Go to Railway project
-2. Click on service
-3. View "Logs" tab
-4. Look for error messages
+**Check Render logs:**
+1. Go to Render Web Service
+2. Click "Logs" tab
+3. Look for error messages
 
 **Common issues:**
 - Environment variables not set
 - Database not initialized
-- Port configuration issue
+- Build failed
 
 **Fix:**
-```bash
-railway logs -f  # Follow logs
-railway run pnpm drizzle-kit push  # Run migrations
-```
+1. Verify all environment variables are set
+2. Run migrations: `pnpm drizzle-kit push`
+3. Click "Manual Deploy" in Render
 
 ### API Calls Fail with CORS Error
 
@@ -264,7 +266,7 @@ railway run pnpm drizzle-kit push  # Run migrations
 **Solution:**
 1. Verify `VITE_API_URL` is set correctly
 2. Check backend allows requests from GitHub Pages
-3. Verify backend is running: `curl https://your-railway-url.up.railway.app`
+3. Test backend: `curl https://your-render-url.onrender.com`
 
 ### Payments Not Working
 
@@ -275,7 +277,8 @@ railway run pnpm drizzle-kit push  # Run migrations
 
 **Test PayPal:**
 ```bash
-railway run node -e "console.log(process.env.PAYPAL_CLIENT_ID)"
+# In Render Shell
+node -e "console.log(process.env.PAYPAL_CLIENT_ID)"
 ```
 
 ---
@@ -287,21 +290,21 @@ railway run node -e "console.log(process.env.PAYPAL_CLIENT_ID)"
 1. Make changes locally
 2. Rebuild: `pnpm build`
 3. Deploy: `git subtree push --prefix dist origin gh-pages`
-4. Visit https://prophetdian.github.io (may need to refresh)
+4. Visit https://prophetdian.github.io (refresh browser)
 
 ### Update Backend
 
 1. Make changes locally
 2. Push to GitHub: `git push origin main`
-3. Railway auto-redeploys from GitHub
-4. Or manually trigger in Railway dashboard
+3. Render auto-redeploys from GitHub
+4. Or manually: Click "Manual Deploy" in Render
 
 ### Update Database Schema
 
 1. Update `drizzle/schema.ts`
 2. Generate migration: `pnpm drizzle-kit generate`
 3. Push to GitHub
-4. Run on Railway: `railway run pnpm drizzle-kit push`
+4. Run on Render: Use Shell tab → `pnpm drizzle-kit push`
 
 ---
 
@@ -311,16 +314,15 @@ railway run node -e "console.log(process.env.PAYPAL_CLIENT_ID)"
 
 **Frontend (GitHub Pages):**
 - Browser DevTools → Console tab
-- GitHub Actions → Deployments tab
+- GitHub Settings → Pages
 
-**Backend (Railway):**
-```bash
-railway logs -f
-```
+**Backend (Render):**
+- Render Web Service → Logs tab
+- Or use Render CLI: `render logs`
 
 ### Monitor Performance
 
-**Railway Dashboard:**
+**Render Dashboard:**
 - CPU and memory usage
 - Request count
 - Error rates
@@ -330,7 +332,7 @@ railway logs -f
 
 ## Security Checklist
 
-- [ ] All environment variables set in Railway
+- [ ] All environment variables set in Render
 - [ ] PayPal credentials are production (not sandbox)
 - [ ] JWT_SECRET is strong and random
 - [ ] Database backups enabled
@@ -342,7 +344,7 @@ railway logs -f
 
 ## Next Steps
 
-1. ✅ Deploy backend to Railway
+1. ✅ Deploy backend to Render
 2. ✅ Deploy frontend to GitHub Pages
 3. ✅ Configure environment variables
 4. ✅ Run database migrations
@@ -355,16 +357,25 @@ railway logs -f
 
 ## Support & Resources
 
-- Railway Docs: https://docs.railway.app
+- Render Docs: https://render.com/docs
 - GitHub Pages Docs: https://docs.github.com/en/pages
 - GitHub CLI: https://cli.github.com
 - PayPal Docs: https://developer.paypal.com
 
+## Quick Reference
+
+| Component | Service | URL |
+|-----------|---------|-----|
+| Frontend | GitHub Pages | https://prophetdian.github.io |
+| Backend | Render | https://your-render-url.onrender.com |
+| Database | Render PostgreSQL | Internal only |
+| Repository | GitHub | https://github.com/prophetdian/prophetdian.github.io |
+
+---
+
 ## Questions?
 
-Check the logs first:
-- Frontend: Browser console (F12)
-- Backend: `railway logs -f`
-- GitHub: Settings → Pages
-
-Then review this guide's Troubleshooting section.
+1. Check the logs first (browser console or Render logs)
+2. Review this guide's Troubleshooting section
+3. See RENDER_DEPLOYMENT.md for detailed Render setup
+4. See GITHUB_PAGES_DEPLOYMENT.md for GitHub Pages details
