@@ -32,6 +32,7 @@ import BadgeCheckout from "./pages/BadgeCheckout";
 import NaviSocietyCheckout from "./pages/NaviSocietyCheckout";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import SubscriptionsDashboard from "./pages/SubscriptionsDashboard";
+import SupabaseDemo from "./pages/SupabaseDemo";
 
 import { useAuth } from "./_core/hooks/useAuth";
 
@@ -64,6 +65,7 @@ function Router() {
       <Route path="/profile-edit" component={ProfileEdit} />
       <Route path="/blocked-users" component={BlockedUsers} />
       <Route path="/subscriptions" component={SubscriptionManagement} />
+      <Route path="/supabase-demo" component={SupabaseDemo} />
       {user?.role === "admin" && <Route path="/admin" component={AdminDashboard} />}
       {user?.role === "admin" && <Route path="/analytics" component={Analytics} />}
       {user?.role === "admin" && <Route path="/moderation" component={ContentModeration} />}

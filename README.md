@@ -60,6 +60,13 @@ A comprehensive digital platform for Prophet Dian Grobbelaar featuring user auth
 
 ### Storage
 - S3 (for images and media)
+- Supabase Storage (optional)
+
+### Backend
+- Express 4
+- tRPC 11
+- Node.js 22.13.0
+- Supabase (Auth, Realtime, Storage)
 
 ## 🚀 Quick Start
 
@@ -87,13 +94,14 @@ prophet-dian/
 │   ├── src/
 │   │   ├── pages/         # Page components
 │   │   ├── components/    # Reusable components
-│   │   ├── lib/           # Utilities and helpers
+│   │   ├── lib/           # Utilities and helpers (including supabase.ts)
 │   │   ├── App.tsx        # Main app component
 │   │   └── main.tsx       # Entry point
 │   └── public/            # Static assets
 ├── server/                # Express backend
 │   ├── routers.ts         # tRPC procedures
 │   ├── db.ts              # Database helpers
+│   ├── supabase.ts        # Supabase server client
 │   ├── paypal.ts          # PayPal integration
 │   └── _core/             # Core framework
 ├── drizzle/               # Database schema and migrations
@@ -111,6 +119,11 @@ JWT_SECRET=your_jwt_secret
 VITE_APP_ID=your_manus_app_id
 PAYPAL_CLIENT_ID=your_paypal_id
 PAYPAL_CLIENT_SECRET=your_paypal_secret
+# Supabase Configuration
+VITE_SUPABASE_URL=https://rqlucgdeuvpkkrbnvjex.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+SUPABASE_URL=https://rqlucgdeuvpkkrbnvjex.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 # ... other variables
 ```
 
