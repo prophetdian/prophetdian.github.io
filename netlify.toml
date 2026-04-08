@@ -1,11 +1,12 @@
 [build]
   command = "pnpm install && pnpm build"
-  functions = "netlify/functions"
   publish = "dist/public"
 
 [build.environment]
   NODE_VERSION = "22.13.0"
   PNPM_VERSION = "10.4.1"
+  VITE_SUPABASE_URL = "https://rqlucgdeuvpkkrbnvjex.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "sb_publishable_fLoSYy-c_Q76RxL3nlfb4A_2hcweUta"
 
 [[redirects]]
   from = "/*"
@@ -27,8 +28,4 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# API routes
-[[redirects]]
-  from = "/api/trpc/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
+

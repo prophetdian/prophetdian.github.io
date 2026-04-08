@@ -163,7 +163,7 @@ export const appRouter = router({
           createdAt: new Date(),
           renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         });
-        return { success: true, isNew: true, subscriptionId: result.insertId };
+        return { success: true, isNew: true, subscriptionId: result[0]?.id || 0 };
       }),
 
     getSubscription: protectedProcedure
@@ -277,7 +277,7 @@ export const appRouter = router({
         const otherUser = await db.select().from(users).where(eq(users.id, input.userId)).limit(1);
         
         return {
-          id: result.insertId,
+          id: result[0]?.id || 0,
           user1Id: ctx.user.id,
           user2Id: input.userId,
           otherUserName: otherUser[0]?.name || otherUser[0]?.username || 'User',
@@ -399,7 +399,7 @@ export const appRouter = router({
           createdAt: new Date(),
         });
         
-        return { success: true, orderId: result.insertId, orderNumber: orderNumber };
+        return { success: true, orderId: result[0]?.id || 0, orderNumber: orderNumber };
       }),
 
     list: protectedProcedure
@@ -587,7 +587,7 @@ export const appRouter = router({
           renewalDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         });
 
-        return { success: true, isNew: true, badgeId: result.insertId };
+        return { success: true, isNew: true, badgeId: result[0]?.id || 0 };
       }),
 
     assignPermanentBadge: adminProcedure
@@ -607,7 +607,7 @@ export const appRouter = router({
           status: "active",
         });
 
-        return { success: true, badgeId: result.insertId };
+        return { success: true, badgeId: result[0]?.id || 0 };
       }),
 
     cancelBadge: protectedProcedure
@@ -751,12 +751,12 @@ export const appRouter = router({
             input.amount,
             input.type === "navi" ? "Navi Society Subscription" : `${input.badgeType} Badge Subscription`,
             ctx.user.email || "user@example.com",
-            ctx.user.name
+            ctx.user.name || "User"
           );
 
           return {
             success: true,
-            orderId: result.insertId,
+            orderId: result[0]?.id || 0,
             orderNumber: orderNumber,
             paypalOrderId: paypalOrder,
             approvalUrl: `https://www.paypal.com/checkoutnow?token=${paypalOrder}`,
@@ -795,7 +795,7 @@ export const appRouter = router({
 
           return {
             success: true,
-            orderId: result.insertId,
+            orderId: result[0]?.id || 0,
             orderNumber: orderNumber,
             message: "Bank transfer details have been sent to your email",
           };
