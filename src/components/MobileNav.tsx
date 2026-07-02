@@ -1,4 +1,5 @@
 import type { View } from '../types';
+import { FeedIcon, StarIcon, UserIcon } from './icons';
 
 interface Props {
   active: View;
@@ -14,7 +15,7 @@ export default function MobileNav({ active, onNavigate }: Props) {
         }`}
         onClick={() => onNavigate('prophetic')}
       >
-        <span className="text-xl">🕊️</span>
+        <FeedIcon className="h-5 w-5" />
         Prophetic Feed
       </button>
       <button
@@ -23,17 +24,17 @@ export default function MobileNav({ active, onNavigate }: Props) {
         }`}
         onClick={() => onNavigate('navi')}
       >
-        <span className="text-xl">✨</span>
+        <StarIcon className="h-5 w-5" />
         Navi Society
       </button>
       <button
         className={`flex flex-1 flex-col items-center gap-0.5 py-3 text-xs ${
-          active === 'notes' ? 'text-[#00FF49]' : 'text-neutral-500'
+          active === 'profile' ? 'text-[#00F7FF]' : 'text-neutral-500'
         }`}
-        onClick={() => onNavigate('notes')}
+        onClick={() => onNavigate('profile')}
       >
-        <span className="text-xl">📝</span>
-        Notes
+        <UserIcon className="h-5 w-5" />
+        My Profile
       </button>
     </nav>
   );

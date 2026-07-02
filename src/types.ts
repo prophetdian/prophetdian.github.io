@@ -1,14 +1,8 @@
 export type Feed = 'prophetic' | 'navi';
 
-export type View = Feed | 'notes';
+export type View = Feed | 'profile';
 
-export interface Note {
-  id: string;
-  title: string;
-  body: string;
-  createdAt: number;
-  updatedAt: number;
-}
+export type BadgeId = 'evangelist' | 'pastor' | 'teacher' | 'apostle' | 'prophet';
 
 export interface Post {
   id: string;

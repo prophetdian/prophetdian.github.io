@@ -1,6 +1,7 @@
 import type { Identity, Post } from '../types';
 import Composer from './Composer';
 import PostCard from './PostCard';
+import { StarIcon } from './icons';
 
 interface Props {
   identity: Identity;
@@ -32,7 +33,7 @@ function JoinGate() {
           className="w-full max-w-sm rounded-2xl border p-6 text-center glow-magenta"
           style={{ borderColor: 'rgba(250,0,255,0.35)' }}
         >
-          <div className="text-3xl">✨</div>
+          <StarIcon className="mx-auto h-8 w-8 text-[#FA00FF]" />
           <h3 className="mt-2 text-xl font-semibold text-gradient">Navi Society</h3>
           <p className="mt-2 text-sm text-neutral-400">
             A personal platform from Prophet Dian. Only Prophet Dian posts here — deep teaching,

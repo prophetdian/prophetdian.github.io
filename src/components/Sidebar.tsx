@@ -1,4 +1,5 @@
 import type { Identity, View } from '../types';
+import { FeedIcon, StarIcon, UserIcon } from './icons';
 
 interface Props {
   active: View;
@@ -22,7 +23,7 @@ export default function Sidebar({ active, onNavigate, identity, onSignOut }: Pro
             }`}
             onClick={() => onNavigate('prophetic')}
           >
-            <span>🕊️</span>
+            <FeedIcon className="h-6 w-6 shrink-0" />
             <span>Prophetic Feed</span>
           </button>
           <button
@@ -31,17 +32,17 @@ export default function Sidebar({ active, onNavigate, identity, onSignOut }: Pro
             }`}
             onClick={() => onNavigate('navi')}
           >
-            <span>✨</span>
+            <StarIcon className="h-6 w-6 shrink-0" />
             <span>Navi Society</span>
           </button>
           <button
             className={`${navItemBase} ${
-              active === 'notes' ? 'text-[#00FF49]' : 'text-white hover:bg-neutral-900'
+              active === 'profile' ? 'text-[#00F7FF]' : 'text-white hover:bg-neutral-900'
             }`}
-            onClick={() => onNavigate('notes')}
+            onClick={() => onNavigate('profile')}
           >
-            <span>📝</span>
-            <span>Notes</span>
+            <UserIcon className="h-6 w-6 shrink-0" />
+            <span>My Profile</span>
           </button>
         </nav>
       </div>

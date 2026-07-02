@@ -1,4 +1,5 @@
 import type { Post } from '../types';
+import { HeartIcon } from './icons';
 
 interface Props {
   post: Post;
@@ -50,7 +51,7 @@ export default function PostCard({ post, onLike }: Props) {
             post.likedByMe ? 'text-[#FA00FF]' : 'text-neutral-500 hover:text-[#FA00FF]'
           }`}
         >
-          <span>{post.likedByMe ? '♥' : '♡'}</span>
+          <HeartIcon filled={post.likedByMe} className="h-4 w-4" />
           <span>{post.likes}</span>
         </button>
       </div>

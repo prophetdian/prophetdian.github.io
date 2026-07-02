@@ -6,7 +6,7 @@ import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 import PropheticFeed from './components/PropheticFeed';
 import NaviSociety from './components/NaviSociety';
-import Notes from './components/Notes';
+import Profile from './components/Profile';
 
 export default function App() {
   const [identity, setIdentity] = useState(loadIdentity());
@@ -85,7 +85,7 @@ export default function App() {
             onLike={toggleLike}
           />
         )}
-        {activeFeed === 'notes' && <Notes />}
+        {activeFeed === 'profile' && <Profile identity={identity} />}
       </main>
       <MobileNav active={activeFeed} onNavigate={setActiveFeed} />
     </div>
