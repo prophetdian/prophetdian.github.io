@@ -1,15 +1,16 @@
 import { useState } from 'react';
-import type { Feed, Post } from './types';
+import type { Feed, Post, View } from './types';
 import { clearIdentity, loadIdentity, loadPosts, saveIdentity, savePosts } from './lib/storage';
 import OnboardingModal from './components/OnboardingModal';
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 import PropheticFeed from './components/PropheticFeed';
 import NaviSociety from './components/NaviSociety';
+import Notes from './components/Notes';
 
 export default function App() {
   const [identity, setIdentity] = useState(loadIdentity());
-  const [activeFeed, setActiveFeed] = useState<Feed>('prophetic');
+  const [activeFeed, setActiveFeed] = useState<View>('prophetic');
   const [posts, setPosts] = useState<Post[]>(loadPosts());
 
   if (!identity) {
@@ -68,14 +69,15 @@ export default function App() {
         }}
       />
       <main className="flex flex-1 flex-col overflow-y-auto pb-16 md:pb-0">
-        {activeFeed === 'prophetic' ? (
+        {activeFeed === 'prophetic' && (
           <PropheticFeed
             identity={identity}
             posts={propheticPosts}
             onPost={(text) => addPost('prophetic', text)}
             onLike={toggleLike}
           />
-        ) : (
+        )}
+        {activeFeed === 'navi' && (
           <NaviSociety
             identity={identity}
             posts={naviPosts}
@@ -83,6 +85,7 @@ export default function App() {
             onLike={toggleLike}
           />
         )}
+        {activeFeed === 'notes' && <Notes />}
       </main>
       <MobileNav active={activeFeed} onNavigate={setActiveFeed} />
     </div>

@@ -5,6 +5,7 @@
   --color-void: #000000;
   --color-cyan: #00f7ff;
   --color-magenta: #fa00ff;
+  --color-lime: #00ff49;
 }
 
 html,
@@ -19,6 +20,14 @@ body {
   font-family: var(--font-fredoka);
   color: #ffffff;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Form controls don't inherit the body font by default */
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-fredoka);
 }
 
 * {

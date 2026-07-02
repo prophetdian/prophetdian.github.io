@@ -1,7 +1,8 @@
-import type { Identity, Post } from '../types';
+import type { Identity, Note, Post } from '../types';
 
 const IDENTITY_KEY = 'pd_identity';
 const POSTS_KEY = 'pd_posts';
+const NOTES_KEY = 'pd_notes';
 const ADMIN_NAME = 'prophet dian';
 
 function seedPosts(): Post[] {
@@ -71,4 +72,18 @@ export function loadPosts(): Post[] {
 
 export function savePosts(posts: Post[]) {
   localStorage.setItem(POSTS_KEY, JSON.stringify(posts));
+}
+
+export function loadNotes(): Note[] {
+  const raw = localStorage.getItem(NOTES_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as Note[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveNotes(notes: Note[]) {
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
 }

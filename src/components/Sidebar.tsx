@@ -1,8 +1,8 @@
-import type { Feed, Identity } from '../types';
+import type { Identity, View } from '../types';
 
 interface Props {
-  active: Feed;
-  onNavigate: (feed: Feed) => void;
+  active: View;
+  onNavigate: (view: View) => void;
   identity: Identity;
   onSignOut: () => void;
 }
@@ -33,6 +33,15 @@ export default function Sidebar({ active, onNavigate, identity, onSignOut }: Pro
           >
             <span>✨</span>
             <span>Navi Society</span>
+          </button>
+          <button
+            className={`${navItemBase} ${
+              active === 'notes' ? 'text-[#00FF49]' : 'text-white hover:bg-neutral-900'
+            }`}
+            onClick={() => onNavigate('notes')}
+          >
+            <span>📝</span>
+            <span>Notes</span>
           </button>
         </nav>
       </div>

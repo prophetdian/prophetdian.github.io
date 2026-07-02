@@ -1,8 +1,8 @@
-import type { Feed } from '../types';
+import type { View } from '../types';
 
 interface Props {
-  active: Feed;
-  onNavigate: (feed: Feed) => void;
+  active: View;
+  onNavigate: (view: View) => void;
 }
 
 export default function MobileNav({ active, onNavigate }: Props) {
@@ -25,6 +25,15 @@ export default function MobileNav({ active, onNavigate }: Props) {
       >
         <span className="text-xl">✨</span>
         Navi Society
+      </button>
+      <button
+        className={`flex flex-1 flex-col items-center gap-0.5 py-3 text-xs ${
+          active === 'notes' ? 'text-[#00FF49]' : 'text-neutral-500'
+        }`}
+        onClick={() => onNavigate('notes')}
+      >
+        <span className="text-xl">📝</span>
+        Notes
       </button>
     </nav>
   );

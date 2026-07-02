@@ -1,5 +1,15 @@
 export type Feed = 'prophetic' | 'navi';
 
+export type View = Feed | 'notes';
+
+export interface Note {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface Post {
   id: string;
   feed: Feed;
