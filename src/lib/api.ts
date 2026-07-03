@@ -9,13 +9,21 @@ export function permanentBadgesFor(email: string): BadgeId[] {
   return email.trim().toLowerCase() === ADMIN_EMAIL ? [...PERMANENT_BADGES] : [];
 }
 
-export async function sendMagicLink(name: string, email: string) {
-  const { error } = await supabase.auth.signInWithOtp({
+export async function signUpWithPassword(name: string, email: string, password: string) {
+  const { error } = await supabase.auth.signUp({
     email: email.trim(),
+    password,
     options: {
-      emailRedirectTo: window.location.origin + window.location.pathname,
       data: { name: name.trim() },
     },
+  });
+  if (error) throw error;
+}
+
+export async function signInWithPassword(email: string, password: string) {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email.trim(),
+    password,
   });
   if (error) throw error;
 }
@@ -138,7 +146,7 @@ export async function setLike(postId: string, userId: string, liked: boolean) {
 
 export async function saveProfile(
   id: string,
-  changes: Partial<Pick<ProfileRow, 'bio' | 'avatar'>>,
+  changes: Partial<Pick<ProfileRow, 'name' | 'bio' | 'avatar'>>,
 ) {
   const { error } = await supabase.from('profiles').update(changes).eq('id', id);
   if (error) throw error;

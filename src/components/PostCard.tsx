@@ -33,14 +33,6 @@ export default function PostCard({ post, onLike }: Props) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 text-sm">
           <span className="font-semibold">{post.authorName}</span>
-          {post.authorIsAdmin && (
-            <span
-              className="rounded-full px-2 py-0.5 text-[10px] font-bold text-black"
-              style={{ background: '#FA00FF' }}
-            >
-              PROPHET
-            </span>
-          )}
           {post.authorBadges?.map((id) => {
             const badge = badgeById(id);
             return (
@@ -55,6 +47,16 @@ export default function PostCard({ post, onLike }: Props) {
           })}
           <span className="text-neutral-600">· {timeAgo(post.createdAt)}</span>
         </div>
+        {post.authorIsAdmin && (
+          <div className="mt-1">
+            <span
+              className="inline-block rounded-full px-2 py-0.5 text-[10px] font-bold text-black"
+              style={{ background: '#FA00FF' }}
+            >
+              PROPHET
+            </span>
+          </div>
+        )}
         <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-snug">
           {post.text}
         </p>

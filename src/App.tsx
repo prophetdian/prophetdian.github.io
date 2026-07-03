@@ -6,7 +6,8 @@ import {
   createPost,
   fetchPosts,
   saveProfile,
-  sendMagicLink,
+  signInWithPassword,
+  signUpWithPassword,
   setLike,
   signOut,
 } from './lib/api';
@@ -68,8 +69,11 @@ export default function App() {
   if (status === 'signedout' || !identity) {
     return (
       <OnboardingModal
-        onSubmit={async (name, email) => {
-          await sendMagicLink(name, email);
+        onSignIn={async (email, password) => {
+          await signInWithPassword(email, password);
+        }}
+        onSignUp={async (name, email, password) => {
+          await signUpWithPassword(name, email, password);
         }}
       />
     );
@@ -98,13 +102,13 @@ export default function App() {
     setLike(id, identity.id, liked).catch(() => {});
   }
 
-  function updateProfile(changes: Partial<Pick<Identity, 'bio' | 'avatar'>>) {
+  function updateProfile(changes: Partial<Pick<Identity, 'name' | 'bio' | 'avatar'>>) {
     if (!identity) return;
     const next = { ...identity, ...changes };
     setIdentity(next);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
-      saveProfile(next.id, { bio: next.bio, avatar: next.avatar }).catch(() => {});
+      saveProfile(next.id, { name: next.name, bio: next.bio, avatar: next.avatar }).catch(() => {});
     }, 600);
   }
 
@@ -142,7 +146,15 @@ export default function App() {
             onLike={toggleLike}
           />
         )}
-        {activeFeed === 'profile' && <Profile identity={identity} onUpdate={updateProfile} />}
+        {activeFeed === 'profile' && (
+          <Profile
+            identity={identity}
+            onUpdate={updateProfile}
+            onSignOut={() => {
+              signOut().catch(() => {});
+            }}
+          />
+        )}
         {activeFeed === 'badges' && <Badges identity={identity} />}
       </main>
       <MobileNav active={activeFeed} onNavigate={setActiveFeed} />
