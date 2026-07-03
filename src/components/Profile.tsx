@@ -1,131 +1,132 @@
-import type { ComponentType } from 'react';
-import type { BadgeId, Identity } from '../types';
-import { BookIcon, CrossIcon, EyeIcon, MegaphoneIcon, StaffIcon } from './icons';
+import { useRef } from 'react';
+import type { Identity } from '../types';
 
 interface Props {
   identity: Identity;
+  onUpdate: (changes: Partial<Pick<Identity, 'email' | 'bio' | 'avatar'>>) => void;
 }
 
-interface Badge {
-  id: BadgeId;
-  name: string;
-  price: number;
-  description: string;
-  icon: ComponentType<{ className?: string }>;
+const AVATAR_SIZE = 256;
+
+function fileToAvatar(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = AVATAR_SIZE;
+      canvas.height = AVATAR_SIZE;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        URL.revokeObjectURL(url);
+        reject(new Error('no canvas'));
+        return;
+      }
+      // Cover-crop the image into a square
+      const side = Math.min(img.width, img.height);
+      const sx = (img.width - side) / 2;
+      const sy = (img.height - side) / 2;
+      ctx.drawImage(img, sx, sy, side, side, 0, 0, AVATAR_SIZE, AVATAR_SIZE);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('bad image'));
+    };
+    img.src = url;
+  });
 }
 
-const BADGES: Badge[] = [
-  {
-    id: 'evangelist',
-    name: 'Evangelist',
-    price: 10,
-    description: 'For those called to proclaim the gospel.',
-    icon: MegaphoneIcon,
-  },
-  {
-    id: 'pastor',
-    name: 'Pastor',
-    price: 10,
-    description: 'For those called to shepherd and care.',
-    icon: StaffIcon,
-  },
-  {
-    id: 'teacher',
-    name: 'Teacher',
-    price: 10,
-    description: 'For those called to teach the word.',
-    icon: BookIcon,
-  },
-  {
-    id: 'apostle',
-    name: 'Apostle',
-    price: 20,
-    description: 'For those called to plant and build.',
-    icon: CrossIcon,
-  },
-  {
-    id: 'prophet',
-    name: 'Prophet',
-    price: 20,
-    description: 'For those called to see and speak.',
-    icon: EyeIcon,
-  },
-];
+export default function Profile({ identity, onUpdate }: Props) {
+  const fileRef = useRef<HTMLInputElement>(null);
 
-export default function Profile({ identity }: Props) {
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      onUpdate({ avatar: await fileToAvatar(file) });
+    } catch {
+      // Ignore unreadable files
+    }
+    e.target.value = '';
+  }
+
   return (
-    <div className="flex-1">
-      <header className="sticky top-0 z-10 border-b border-neutral-900 bg-black/80 px-4 py-3 backdrop-blur">
-        <h2 className="text-xl font-semibold">My Profile</h2>
-        <p className="text-xs text-neutral-500">Your identity and ministry badges.</p>
+    <div className="min-h-full flex-1" style={{ background: '#00F7FF' }}>
+      <header className="px-4 pt-6 pb-2 sm:px-6">
+        <h2 className="text-2xl font-semibold text-black">My Profile</h2>
       </header>
 
-      <div className="flex items-center gap-4 border-b border-neutral-900 px-4 py-6">
-        <div
-          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-2xl font-semibold text-black"
-          style={{ background: 'linear-gradient(135deg,#00F7FF,#FA00FF)' }}
-        >
-          {identity.name.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <div className="text-lg font-semibold">{identity.name}</div>
+      <div className="mx-auto max-w-xl px-4 pb-24 sm:px-6">
+        <div className="flex flex-col items-center">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFile}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-2 border-black bg-black"
+            title="Add profile pic"
+          >
+            {identity.avatar ? (
+              <img
+                src={identity.avatar}
+                alt="Profile"
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <span className="text-5xl font-semibold text-[#00F7FF]">
+                {identity.name.charAt(0).toUpperCase()}
+              </span>
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="mt-3 rounded-full bg-black px-4 py-1.5 text-xs font-semibold text-white"
+          >
+            {identity.avatar ? 'Change profile pic' : 'Add profile pic'}
+          </button>
           {identity.isAdmin && (
             <span
-              className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold text-black"
+              className="mt-3 inline-block rounded-full px-3 py-1 text-xs font-bold text-black"
               style={{ background: '#FA00FF' }}
             >
               PROPHET
             </span>
           )}
         </div>
-      </div>
 
-      <div className="px-4 py-6">
-        <h3 className="text-lg font-semibold text-gradient">Ministry Badges</h3>
-        <p className="mt-1 text-sm text-neutral-500">
-          Get a badge to mark your calling on Prophet Dian.
-        </p>
-
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {BADGES.map((badge) => {
-            const Icon = badge.icon;
-            const accent = badge.price === 20 ? '#FA00FF' : '#00F7FF';
-            return (
-              <div
-                key={badge.id}
-                className="rounded-2xl border border-neutral-800 bg-neutral-950 p-4"
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.05)', color: accent }}
-                  >
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <div className="font-semibold">{badge.name}</div>
-                    <div className="text-xs text-neutral-500">{badge.description}</div>
-                  </div>
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <div className="text-lg font-bold">
-                    ${badge.price}
-                    <span className="text-xs font-normal text-neutral-500">/year</span>
-                  </div>
-                  <button
-                    disabled
-                    title="Payments launching soon"
-                    className="cursor-not-allowed rounded-full px-4 py-1.5 text-xs font-semibold text-black opacity-60"
-                    style={{ background: accent }}
-                  >
-                    Get Badge
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+        <label className="mt-6 block text-sm font-medium text-black">Username</label>
+        <div className="mt-2 flex items-center rounded-2xl border-2 border-black bg-white px-4 py-3">
+          <div className="truncate text-lg font-semibold text-black">{identity.name}</div>
         </div>
-        <p className="mt-3 text-xs text-neutral-600">Payments launching soon.</p>
+
+        <label htmlFor="profile-email" className="mt-5 block text-sm font-medium text-black">
+          Email
+        </label>
+        <input
+          id="profile-email"
+          type="email"
+          value={identity.email}
+          onChange={(e) => onUpdate({ email: e.target.value })}
+          placeholder="you@example.com"
+          className="mt-2 w-full rounded-2xl border-2 border-black bg-white px-4 py-3 text-black outline-none placeholder:text-black/40"
+        />
+
+        <h3 className="mt-8 text-2xl font-semibold text-black">Bio</h3>
+        <textarea
+          value={identity.bio}
+          onChange={(e) => onUpdate({ bio: e.target.value })}
+          placeholder="Tell people who you are and what you are called to..."
+          className="mt-3 min-h-44 w-full resize-y rounded-2xl border-2 border-black bg-white p-4 text-black outline-none placeholder:text-black/40"
+        />
+        <p className="mt-2 text-xs text-black/60">Saved automatically on this device.</p>
       </div>
     </div>
   );

@@ -126,6 +126,23 @@ export function StaffIcon({ className }: IconProps) {
   );
 }
 
+export function BadgeIcon({ className }: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <circle cx="12" cy="9" r="5.5" />
+      <path d="M8.5 13.5L7 21l5-2.6L17 21l-1.5-7.5" />
+    </svg>
+  );
+}
+
 export function BookIcon({ className }: IconProps) {
   return (
     <svg

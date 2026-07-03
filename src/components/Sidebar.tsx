@@ -1,5 +1,5 @@
 import type { Identity, View } from '../types';
-import { FeedIcon, StarIcon, UserIcon } from './icons';
+import { BadgeIcon, FeedIcon, StarIcon, UserIcon } from './icons';
 
 interface Props {
   active: View;
@@ -44,16 +44,29 @@ export default function Sidebar({ active, onNavigate, identity, onSignOut }: Pro
             <UserIcon className="h-6 w-6 shrink-0" />
             <span>My Profile</span>
           </button>
+          <button
+            className={`${navItemBase} ${
+              active === 'badges' ? 'text-[#FA00FF]' : 'text-white hover:bg-neutral-900'
+            }`}
+            onClick={() => onNavigate('badges')}
+          >
+            <BadgeIcon className="h-6 w-6 shrink-0" />
+            <span>Badges</span>
+          </button>
         </nav>
       </div>
 
       <div className="flex items-center justify-between rounded-full border border-neutral-800 px-3 py-2">
         <div className="flex items-center gap-2 overflow-hidden">
           <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-semibold text-black"
+            className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full font-semibold text-black"
             style={{ background: 'linear-gradient(135deg,#00F7FF,#FA00FF)' }}
           >
-            {identity.name.charAt(0).toUpperCase()}
+            {identity.avatar ? (
+              <img src={identity.avatar} alt="" className="h-full w-full object-cover" />
+            ) : (
+              identity.name.charAt(0).toUpperCase()
+            )}
           </div>
           <div className="truncate text-sm">
             <div className="truncate font-medium">{identity.name}</div>

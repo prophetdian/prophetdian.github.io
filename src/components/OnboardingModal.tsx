@@ -1,16 +1,17 @@
 import { useState } from 'react';
 
 interface Props {
-  onSubmit: (name: string) => void;
+  onSubmit: (name: string, email: string) => void;
 }
 
 export default function OnboardingModal({ onSubmit }: Props) {
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
-    onSubmit(name);
+    onSubmit(name, email);
   }
 
   return (
@@ -30,6 +31,13 @@ export default function OnboardingModal({ onSubmit }: Props) {
           onChange={(e) => setName(e.target.value)}
           placeholder="Your name"
           className="w-full rounded-lg border border-neutral-700 bg-neutral-950 px-4 py-3 text-white outline-none focus:border-[#00F7FF]"
+        />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email (optional)"
+          className="mt-3 w-full rounded-lg border border-neutral-700 bg-neutral-950 px-4 py-3 text-white outline-none focus:border-[#00F7FF]"
         />
         <button
           type="submit"

@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import type { Feed, Post, View } from './types';
-import { clearIdentity, loadIdentity, loadPosts, saveIdentity, savePosts } from './lib/storage';
+import type { Feed, Identity, Post, View } from './types';
+import {
+  clearIdentity,
+  loadIdentity,
+  loadPosts,
+  saveIdentity,
+  savePosts,
+  updateIdentity,
+} from './lib/storage';
 import OnboardingModal from './components/OnboardingModal';
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
 import PropheticFeed from './components/PropheticFeed';
 import NaviSociety from './components/NaviSociety';
 import Profile from './components/Profile';
+import Badges from './components/Badges';
 
 export default function App() {
   const [identity, setIdentity] = useState(loadIdentity());
@@ -16,8 +24,8 @@ export default function App() {
   if (!identity) {
     return (
       <OnboardingModal
-        onSubmit={(name) => {
-          setIdentity(saveIdentity(name));
+        onSubmit={(name, email) => {
+          setIdentity(saveIdentity(name, email));
         }}
       />
     );
@@ -30,6 +38,7 @@ export default function App() {
       feed,
       authorName: identity.name,
       authorIsAdmin: identity.isAdmin,
+      authorBadges: identity.badges,
       text,
       createdAt: Date.now(),
       likes: 0,
@@ -48,6 +57,11 @@ export default function App() {
     );
     setPosts(next);
     savePosts(next);
+  }
+
+  function updateProfile(changes: Partial<Pick<Identity, 'email' | 'bio' | 'avatar'>>) {
+    if (!identity) return;
+    setIdentity(updateIdentity(identity, changes));
   }
 
   const propheticPosts = posts
@@ -85,7 +99,8 @@ export default function App() {
             onLike={toggleLike}
           />
         )}
-        {activeFeed === 'profile' && <Profile identity={identity} />}
+        {activeFeed === 'profile' && <Profile identity={identity} onUpdate={updateProfile} />}
+        {activeFeed === 'badges' && <Badges identity={identity} />}
       </main>
       <MobileNav active={activeFeed} onNavigate={setActiveFeed} />
     </div>

@@ -1,4 +1,5 @@
 import type { Post } from '../types';
+import { badgeById } from '../lib/badges';
 import { HeartIcon } from './icons';
 
 interface Props {
@@ -40,6 +41,18 @@ export default function PostCard({ post, onLike }: Props) {
               PROPHET
             </span>
           )}
+          {post.authorBadges?.map((id) => {
+            const badge = badgeById(id);
+            return (
+              <img
+                key={id}
+                src={badge.image}
+                alt={badge.name}
+                title={badge.name}
+                className="h-4.5 w-4.5 shrink-0"
+              />
+            );
+          })}
           <span className="text-neutral-600">· {timeAgo(post.createdAt)}</span>
         </div>
         <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-snug">

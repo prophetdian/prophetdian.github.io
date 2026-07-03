@@ -1,5 +1,5 @@
 import type { View } from '../types';
-import { FeedIcon, StarIcon, UserIcon } from './icons';
+import { BadgeIcon, FeedIcon, StarIcon, UserIcon } from './icons';
 
 interface Props {
   active: View;
@@ -35,6 +35,15 @@ export default function MobileNav({ active, onNavigate }: Props) {
       >
         <UserIcon className="h-5 w-5" />
         My Profile
+      </button>
+      <button
+        className={`flex flex-1 flex-col items-center gap-0.5 py-3 text-xs ${
+          active === 'badges' ? 'text-[#FA00FF]' : 'text-neutral-500'
+        }`}
+        onClick={() => onNavigate('badges')}
+      >
+        <BadgeIcon className="h-5 w-5" />
+        Badges
       </button>
     </nav>
   );
