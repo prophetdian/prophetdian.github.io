@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Feed, Identity, Post, View } from './types';
+import { supabase } from './lib/supabase';
 import {
-  clearIdentity,
-  loadIdentity,
-  loadPosts,
-  saveIdentity,
-  savePosts,
-  updateIdentity,
-} from './lib/storage';
+  buildIdentity,
+  createPost,
+  fetchPosts,
+  saveProfile,
+  sendMagicLink,
+  setLike,
+  signOut,
+} from './lib/api';
 import OnboardingModal from './components/OnboardingModal';
 import Sidebar from './components/Sidebar';
 import MobileNav from './components/MobileNav';
@@ -16,52 +18,94 @@ import NaviSociety from './components/NaviSociety';
 import Profile from './components/Profile';
 import Badges from './components/Badges';
 
-export default function App() {
-  const [identity, setIdentity] = useState(loadIdentity());
-  const [activeFeed, setActiveFeed] = useState<View>('prophetic');
-  const [posts, setPosts] = useState<Post[]>(loadPosts());
+type AuthStatus = 'loading' | 'signedout' | 'ready';
 
-  if (!identity) {
+export default function App() {
+  const [status, setStatus] = useState<AuthStatus>('loading');
+  const [identity, setIdentity] = useState<Identity | null>(null);
+  const [activeFeed, setActiveFeed] = useState<View>('prophetic');
+  const [posts, setPosts] = useState<Post[]>([]);
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Defer Supabase calls out of the auth callback to avoid the client lock
+      setTimeout(() => {
+        if (session?.user) {
+          buildIdentity(session.user)
+            .then((id) => {
+              setIdentity(id);
+              setStatus('ready');
+            })
+            .catch(() => setStatus('signedout'));
+        } else {
+          setIdentity(null);
+          setStatus('signedout');
+        }
+      }, 0);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!identity) {
+      setPosts([]);
+      return;
+    }
+    fetchPosts(identity.id)
+      .then(setPosts)
+      .catch(() => {});
+  }, [identity?.id]);
+
+  if (status === 'loading') {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-2xl font-bold text-gradient">Prophet Dian</div>
+      </div>
+    );
+  }
+
+  if (status === 'signedout' || !identity) {
     return (
       <OnboardingModal
-        onSubmit={(name, email) => {
-          setIdentity(saveIdentity(name, email));
+        onSubmit={async (name, email) => {
+          await sendMagicLink(name, email);
         }}
       />
     );
   }
 
-  function addPost(feed: Feed, text: string) {
+  async function addPost(feed: Feed, text: string) {
     if (!identity) return;
-    const newPost: Post = {
-      id: crypto.randomUUID(),
-      feed,
-      authorName: identity.name,
-      authorIsAdmin: identity.isAdmin,
-      authorBadges: identity.badges,
-      text,
-      createdAt: Date.now(),
-      likes: 0,
-      likedByMe: false,
-    };
-    const next = [newPost, ...posts];
-    setPosts(next);
-    savePosts(next);
+    try {
+      const post = await createPost(identity, feed, text);
+      setPosts((prev) => [post, ...prev]);
+    } catch {
+      // Post rejected (offline or not permitted) — leave the feed as is
+    }
   }
 
   function toggleLike(id: string) {
-    const next = posts.map((p) =>
-      p.id === id
-        ? { ...p, likedByMe: !p.likedByMe, likes: p.likes + (p.likedByMe ? -1 : 1) }
-        : p,
+    if (!identity) return;
+    const target = posts.find((p) => p.id === id);
+    if (!target) return;
+    const liked = !target.likedByMe;
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, likedByMe: liked, likes: p.likes + (liked ? 1 : -1) } : p,
+      ),
     );
-    setPosts(next);
-    savePosts(next);
+    setLike(id, identity.id, liked).catch(() => {});
   }
 
-  function updateProfile(changes: Partial<Pick<Identity, 'email' | 'bio' | 'avatar'>>) {
+  function updateProfile(changes: Partial<Pick<Identity, 'bio' | 'avatar'>>) {
     if (!identity) return;
-    setIdentity(updateIdentity(identity, changes));
+    const next = { ...identity, ...changes };
+    setIdentity(next);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      saveProfile(next.id, { bio: next.bio, avatar: next.avatar }).catch(() => {});
+    }, 600);
   }
 
   const propheticPosts = posts
@@ -78,8 +122,7 @@ export default function App() {
         onNavigate={setActiveFeed}
         identity={identity}
         onSignOut={() => {
-          clearIdentity();
-          setIdentity(null);
+          signOut().catch(() => {});
         }}
       />
       <main className="flex flex-1 flex-col overflow-y-auto pb-16 md:pb-0">

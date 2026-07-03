@@ -3,7 +3,7 @@ import type { Identity } from '../types';
 
 interface Props {
   identity: Identity;
-  onUpdate: (changes: Partial<Pick<Identity, 'email' | 'bio' | 'avatar'>>) => void;
+  onUpdate: (changes: Partial<Pick<Identity, 'bio' | 'avatar'>>) => void;
 }
 
 const AVATAR_SIZE = 256;
@@ -107,17 +107,10 @@ export default function Profile({ identity, onUpdate }: Props) {
           <div className="truncate text-lg font-semibold text-black">{identity.name}</div>
         </div>
 
-        <label htmlFor="profile-email" className="mt-5 block text-sm font-medium text-black">
-          Email
-        </label>
-        <input
-          id="profile-email"
-          type="email"
-          value={identity.email}
-          onChange={(e) => onUpdate({ email: e.target.value })}
-          placeholder="you@example.com"
-          className="mt-2 w-full rounded-2xl border-2 border-black bg-white px-4 py-3 text-black outline-none placeholder:text-black/40"
-        />
+        <label className="mt-5 block text-sm font-medium text-black">Email</label>
+        <div className="mt-2 flex items-center rounded-2xl border-2 border-black bg-white px-4 py-3">
+          <div className="truncate text-black">{identity.email}</div>
+        </div>
 
         <h3 className="mt-8 text-2xl font-semibold text-black">Bio</h3>
         <textarea
@@ -126,7 +119,7 @@ export default function Profile({ identity, onUpdate }: Props) {
           placeholder="Tell people who you are and what you are called to..."
           className="mt-3 min-h-44 w-full resize-y rounded-2xl border-2 border-black bg-white p-4 text-black outline-none placeholder:text-black/40"
         />
-        <p className="mt-2 text-xs text-black/60">Saved automatically on this device.</p>
+        <p className="mt-2 text-xs text-black/60">Saved to your profile automatically.</p>
       </div>
     </div>
   );
