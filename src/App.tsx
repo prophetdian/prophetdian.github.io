@@ -129,7 +129,10 @@ export default function App() {
           signOut().catch(() => {});
         }}
       />
-      <main className="flex flex-1 flex-col overflow-y-auto pb-16 md:pb-0">
+      <main
+        className="flex flex-1 flex-col overflow-y-auto pb-16 md:pb-0"
+        style={activeFeed === 'profile' ? { background: '#00F7FF' } : undefined}
+      >
         {activeFeed === 'prophetic' && (
           <PropheticFeed
             identity={identity}

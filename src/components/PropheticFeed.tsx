@@ -14,7 +14,6 @@ export default function PropheticFeed({ identity, posts, onPost, onLike }: Props
     <div className="flex-1">
       <header className="sticky top-0 z-10 border-b border-neutral-900 bg-black/80 px-4 py-3 backdrop-blur">
         <h2 className="text-xl font-semibold">Prophetic Feed</h2>
-        <p className="text-xs text-neutral-500">Everyone can post. Speak what you receive.</p>
       </header>
       <Composer
         identity={identity}

@@ -116,11 +116,6 @@ export default function Profile({ identity, onUpdate, onSignOut }: Props) {
           />
         </div>
 
-        <label className="mt-5 block text-sm font-medium text-black">Email</label>
-        <div className="mt-2 flex items-center rounded-2xl border-2 border-black bg-white px-4 py-3">
-          <div className="truncate text-black">{identity.email}</div>
-        </div>
-
         <h3 className="mt-8 text-2xl font-semibold text-black">Bio</h3>
         <textarea
           value={identity.bio}
@@ -130,9 +125,9 @@ export default function Profile({ identity, onUpdate, onSignOut }: Props) {
         />
         <p className="mt-2 text-xs text-black/60">Saved to your profile automatically.</p>
 
-        <h3 className="mt-8 text-2xl font-semibold text-black">Badges</h3>
+        <h3 className="mt-8 text-center text-2xl font-semibold text-black">Badges</h3>
         {identity.badges.length > 0 ? (
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-col items-center gap-3">
             {identity.badges.map((id) => {
               const badge = badgeById(id);
               return (
@@ -147,7 +142,7 @@ export default function Profile({ identity, onUpdate, onSignOut }: Props) {
             })}
           </div>
         ) : (
-          <p className="mt-3 text-sm text-black/60">No badges yet.</p>
+          <p className="mt-3 text-center text-sm text-black/60">No badges yet.</p>
         )}
 
         <button
@@ -160,6 +155,10 @@ export default function Profile({ identity, onUpdate, onSignOut }: Props) {
         </button>
         {settingsOpen && (
           <div className="mt-3 rounded-2xl border-2 border-black bg-white p-4">
+            <label className="block text-sm font-medium text-black">Email</label>
+            <div className="mt-2 mb-4 truncate rounded-xl border-2 border-black bg-white px-4 py-3 text-black">
+              {identity.email}
+            </div>
             <button
               type="button"
               onClick={onSignOut}
