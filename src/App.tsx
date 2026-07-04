@@ -18,6 +18,7 @@ import PropheticFeed from './components/PropheticFeed';
 import NaviSociety from './components/NaviSociety';
 import Profile from './components/Profile';
 import Badges from './components/Badges';
+import Dms from './components/Dms';
 
 type AuthStatus = 'loading' | 'signedout' | 'ready';
 
@@ -59,11 +60,7 @@ export default function App() {
   }, [identity?.id]);
 
   if (status === 'loading') {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-2xl font-bold text-gradient">Prophet Dian</div>
-      </div>
-    );
+    return <div className="h-screen" />;
   }
 
   if (status === 'signedout' || !identity) {
@@ -131,7 +128,13 @@ export default function App() {
       />
       <main
         className="flex flex-1 flex-col overflow-y-auto pb-16 md:pb-0"
-        style={activeFeed === 'profile' ? { background: '#00F7FF' } : undefined}
+        style={
+          activeFeed === 'profile'
+            ? { background: '#00F7FF' }
+            : activeFeed === 'dms'
+              ? { background: '#FFFFFF' }
+              : undefined
+        }
       >
         {activeFeed === 'prophetic' && (
           <PropheticFeed
@@ -139,6 +142,7 @@ export default function App() {
             posts={propheticPosts}
             onPost={(text) => addPost('prophetic', text)}
             onLike={toggleLike}
+            onOpenBadges={() => setActiveFeed('badges')}
           />
         )}
         {activeFeed === 'navi' && (
@@ -156,9 +160,11 @@ export default function App() {
             onSignOut={() => {
               signOut().catch(() => {});
             }}
+            onOpenBadges={() => setActiveFeed('badges')}
           />
         )}
         {activeFeed === 'badges' && <Badges identity={identity} />}
+        {activeFeed === 'dms' && <Dms />}
       </main>
       <MobileNav active={activeFeed} onNavigate={setActiveFeed} />
     </div>

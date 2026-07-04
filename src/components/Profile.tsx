@@ -1,12 +1,13 @@
 import { useRef, useState } from 'react';
 import type { Identity } from '../types';
 import { badgeById } from '../lib/badges';
-import { GearIcon } from './icons';
+import { BadgeIcon, GearIcon } from './icons';
 
 interface Props {
   identity: Identity;
   onUpdate: (changes: Partial<Pick<Identity, 'name' | 'bio' | 'avatar'>>) => void;
   onSignOut: () => void;
+  onOpenBadges: () => void;
 }
 
 const AVATAR_SIZE = 256;
@@ -41,7 +42,7 @@ function fileToAvatar(file: File): Promise<string> {
   });
 }
 
-export default function Profile({ identity, onUpdate, onSignOut }: Props) {
+export default function Profile({ identity, onUpdate, onSignOut, onOpenBadges }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -58,8 +59,18 @@ export default function Profile({ identity, onUpdate, onSignOut }: Props) {
 
   return (
     <div className="min-h-full flex-1" style={{ background: '#00F7FF' }}>
-      <header className="px-4 pt-6 pb-2 sm:px-6">
+      <header className="flex items-center justify-between px-4 pt-6 pb-2 sm:px-6">
         <h2 className="text-2xl font-semibold text-black">My Profile</h2>
+        <button
+          type="button"
+          onClick={onOpenBadges}
+          aria-label="Badges"
+          title="Badges"
+          className="flex h-9 w-9 items-center justify-center rounded-full text-black md:hidden"
+          style={{ background: '#FA00FF' }}
+        >
+          <BadgeIcon className="h-5 w-5" />
+        </button>
       </header>
 
       <div className="mx-auto max-w-xl px-4 pb-24 sm:px-6">

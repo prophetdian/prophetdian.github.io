@@ -1,5 +1,5 @@
 import type { Identity, View } from '../types';
-import { BadgeIcon, FeedIcon, StarIcon, UserIcon } from './icons';
+import { BadgeIcon, FeedIcon, MailIcon, StarIcon, UserIcon } from './icons';
 
 interface Props {
   active: View;
@@ -52,6 +52,15 @@ export default function Sidebar({ active, onNavigate, identity, onSignOut }: Pro
           >
             <BadgeIcon className="h-6 w-6 shrink-0" />
             <span>Badges</span>
+          </button>
+          <button
+            className={`${navItemBase} ${
+              active === 'dms' ? 'text-[#00F7FF]' : 'text-white hover:bg-neutral-900'
+            }`}
+            onClick={() => onNavigate('dms')}
+          >
+            <MailIcon className="h-6 w-6 shrink-0" />
+            <span>DMs</span>
           </button>
         </nav>
       </div>

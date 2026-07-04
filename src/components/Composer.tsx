@@ -5,10 +5,11 @@ interface Props {
   identity: Identity;
   placeholder: string;
   accent: 'cyan' | 'magenta';
+  light?: boolean;
   onPost: (text: string) => void;
 }
 
-export default function Composer({ identity, placeholder, accent, onPost }: Props) {
+export default function Composer({ identity, placeholder, accent, light, onPost }: Props) {
   const [text, setText] = useState('');
   const color = accent === 'cyan' ? '#00F7FF' : '#FA00FF';
 
@@ -19,7 +20,10 @@ export default function Composer({ identity, placeholder, accent, onPost }: Prop
   }
 
   return (
-    <div className="border-b border-neutral-900 px-4 py-4">
+    <div
+      className={`border-b px-4 py-4 ${light ? 'border-neutral-200' : 'border-neutral-900'}`}
+      style={light ? { background: '#FFFFFF' } : undefined}
+    >
       <div className="flex gap-3">
         <div
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full font-semibold text-black"
@@ -33,7 +37,9 @@ export default function Composer({ identity, placeholder, accent, onPost }: Prop
             onChange={(e) => setText(e.target.value)}
             placeholder={placeholder}
             rows={2}
-            className="w-full resize-none bg-transparent text-lg outline-none placeholder:text-neutral-600"
+            className={`w-full resize-none bg-transparent text-lg outline-none ${
+              light ? 'text-black placeholder:text-neutral-500' : 'placeholder:text-neutral-600'
+            }`}
           />
           <div className="mt-2 flex justify-end">
             <button

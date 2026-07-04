@@ -1,6 +1,6 @@
 export type Feed = 'prophetic' | 'navi';
 
-export type View = Feed | 'profile' | 'badges';
+export type View = Feed | 'profile' | 'badges' | 'dms';
 
 export type BadgeId = 'evangelist' | 'pastor' | 'teacher' | 'apostle' | 'prophet';
 
