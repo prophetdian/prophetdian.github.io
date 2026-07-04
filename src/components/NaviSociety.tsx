@@ -1,4 +1,5 @@
 import type { Identity, Post } from '../types';
+import type { PostMedia } from '../lib/api';
 import Composer from './Composer';
 import PostCard from './PostCard';
 import { StarIcon } from './icons';
@@ -6,8 +7,9 @@ import { StarIcon } from './icons';
 interface Props {
   identity: Identity;
   posts: Post[];
-  onPost: (text: string) => void;
+  onPost: (text: string, media?: PostMedia | null) => void;
   onLike: (id: string) => void;
+  onOpenProfile: (authorId: string) => void;
 }
 
 function JoinGate() {
@@ -58,7 +60,7 @@ function JoinGate() {
   );
 }
 
-export default function NaviSociety({ identity, posts, onPost, onLike }: Props) {
+export default function NaviSociety({ identity, posts, onPost, onLike, onOpenProfile }: Props) {
   const hasAccess = identity.isAdmin || identity.isNaviMember;
 
   return (
@@ -87,7 +89,7 @@ export default function NaviSociety({ identity, posts, onPost, onLike }: Props) 
               </p>
             )}
             {posts.map((post) => (
-              <PostCard key={post.id} post={post} onLike={onLike} />
+              <PostCard key={post.id} post={post} onLike={onLike} onOpenProfile={onOpenProfile} />
             ))}
           </div>
         </div>

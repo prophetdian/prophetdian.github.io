@@ -11,6 +11,7 @@ import {
   signUpWithPassword,
   setLike,
   signOut,
+  type PostMedia,
 } from './lib/api';
 import OnboardingModal from './components/OnboardingModal';
 import Sidebar from './components/Sidebar';
@@ -18,6 +19,7 @@ import MobileNav from './components/MobileNav';
 import PropheticFeed from './components/PropheticFeed';
 import NaviSociety from './components/NaviSociety';
 import Profile from './components/Profile';
+import UserProfile from './components/UserProfile';
 import Badges from './components/Badges';
 import Dms from './components/Dms';
 
@@ -27,8 +29,26 @@ export default function App() {
   const [status, setStatus] = useState<AuthStatus>('loading');
   const [identity, setIdentity] = useState<Identity | null>(null);
   const [activeFeed, setActiveFeed] = useState<View>('prophetic');
+  const [viewingId, setViewingId] = useState<string | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Switching feeds always closes any open user profile.
+  function navigate(view: View) {
+    setViewingId(null);
+    setActiveFeed(view);
+  }
+
+  // Tapping a post's author opens their public profile; tapping your own
+  // routes to your editable profile instead.
+  function openProfile(authorId: string) {
+    if (identity && authorId === identity.id) {
+      setViewingId(null);
+      setActiveFeed('profile');
+    } else {
+      setViewingId(authorId);
+    }
+  }
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -77,10 +97,10 @@ export default function App() {
     );
   }
 
-  async function addPost(feed: Feed, text: string) {
+  async function addPost(feed: Feed, text: string, media?: PostMedia | null) {
     if (!identity) return;
     try {
-      const post = await createPost(identity, feed, text);
+      const post = await createPost(identity, feed, text, media);
       setPosts((prev) => [post, ...prev]);
     } catch {
       // Post rejected (offline or not permitted) — leave the feed as is
@@ -135,7 +155,7 @@ export default function App() {
     <div className="mx-auto flex h-screen max-w-5xl">
       <Sidebar
         active={activeFeed}
-        onNavigate={setActiveFeed}
+        onNavigate={navigate}
         identity={identity}
         onSignOut={() => {
           signOut().catch(() => {});
@@ -144,47 +164,60 @@ export default function App() {
       <main
         className="flex flex-1 flex-col overflow-y-auto pb-16 md:pb-0"
         style={
-          activeFeed === 'profile'
+          viewingId || activeFeed === 'profile'
             ? { background: '#00F7FF' }
             : activeFeed === 'dms'
               ? { background: '#FFFFFF' }
               : undefined
         }
       >
-        {activeFeed === 'prophetic' && (
-          <PropheticFeed
-            identity={identity}
-            posts={propheticPosts}
-            onPost={(text) => addPost('prophetic', text)}
-            onLike={toggleLike}
-            onOpenBadges={() => setActiveFeed('badges')}
-          />
-        )}
-        {activeFeed === 'navi' && (
-          <NaviSociety
-            identity={identity}
-            posts={naviPosts}
-            onPost={(text) => addPost('navi', text)}
+        {viewingId ? (
+          <UserProfile
+            userId={viewingId}
+            posts={posts}
+            onBack={() => setViewingId(null)}
             onLike={toggleLike}
           />
+        ) : (
+          <>
+            {activeFeed === 'prophetic' && (
+              <PropheticFeed
+                identity={identity}
+                posts={propheticPosts}
+                onPost={(text, media) => addPost('prophetic', text, media)}
+                onLike={toggleLike}
+                onOpenBadges={() => navigate('badges')}
+                onOpenProfile={openProfile}
+              />
+            )}
+            {activeFeed === 'navi' && (
+              <NaviSociety
+                identity={identity}
+                posts={naviPosts}
+                onPost={(text, media) => addPost('navi', text, media)}
+                onLike={toggleLike}
+                onOpenProfile={openProfile}
+              />
+            )}
+            {activeFeed === 'profile' && (
+              <Profile
+                identity={identity}
+                posts={myPosts}
+                onUpdate={updateProfile}
+                onSignOut={() => {
+                  signOut().catch(() => {});
+                }}
+                onOpenBadges={() => navigate('badges')}
+                onLike={toggleLike}
+                onDelete={removePost}
+              />
+            )}
+            {activeFeed === 'badges' && <Badges identity={identity} />}
+            {activeFeed === 'dms' && <Dms />}
+          </>
         )}
-        {activeFeed === 'profile' && (
-          <Profile
-            identity={identity}
-            posts={myPosts}
-            onUpdate={updateProfile}
-            onSignOut={() => {
-              signOut().catch(() => {});
-            }}
-            onOpenBadges={() => setActiveFeed('badges')}
-            onLike={toggleLike}
-            onDelete={removePost}
-          />
-        )}
-        {activeFeed === 'badges' && <Badges identity={identity} />}
-        {activeFeed === 'dms' && <Dms />}
       </main>
-      <MobileNav active={activeFeed} onNavigate={setActiveFeed} />
+      <MobileNav active={activeFeed} onNavigate={navigate} />
     </div>
   );
 }

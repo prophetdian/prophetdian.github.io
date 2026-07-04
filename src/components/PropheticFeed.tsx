@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Identity, Post } from '../types';
+import type { PostMedia } from '../lib/api';
 import Composer from './Composer';
 import PostCard from './PostCard';
 import { BadgeIcon, SearchIcon } from './icons';
@@ -7,12 +8,20 @@ import { BadgeIcon, SearchIcon } from './icons';
 interface Props {
   identity: Identity;
   posts: Post[];
-  onPost: (text: string) => void;
+  onPost: (text: string, media?: PostMedia | null) => void;
   onLike: (id: string) => void;
   onOpenBadges: () => void;
+  onOpenProfile: (authorId: string) => void;
 }
 
-export default function PropheticFeed({ identity, posts, onPost, onLike, onOpenBadges }: Props) {
+export default function PropheticFeed({
+  identity,
+  posts,
+  onPost,
+  onLike,
+  onOpenBadges,
+  onOpenProfile,
+}: Props) {
   const [query, setQuery] = useState('');
   const q = query.trim().toLowerCase();
   const visible = q
@@ -66,7 +75,7 @@ export default function PropheticFeed({ identity, posts, onPost, onLike, onOpenB
           </p>
         )}
         {visible.map((post) => (
-          <PostCard key={post.id} post={post} onLike={onLike} />
+          <PostCard key={post.id} post={post} onLike={onLike} onOpenProfile={onOpenProfile} />
         ))}
       </div>
     </div>
