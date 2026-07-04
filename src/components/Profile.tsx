@@ -1,13 +1,17 @@
 import { useRef, useState } from 'react';
-import type { Identity } from '../types';
+import type { Identity, Post } from '../types';
 import { badgeById } from '../lib/badges';
 import { BadgeIcon, GearIcon } from './icons';
+import PostCard from './PostCard';
 
 interface Props {
   identity: Identity;
+  posts: Post[];
   onUpdate: (changes: Partial<Pick<Identity, 'name' | 'bio' | 'avatar'>>) => void;
   onSignOut: () => void;
   onOpenBadges: () => void;
+  onLike: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const AVATAR_SIZE = 256;
@@ -42,7 +46,15 @@ function fileToAvatar(file: File): Promise<string> {
   });
 }
 
-export default function Profile({ identity, onUpdate, onSignOut, onOpenBadges }: Props) {
+export default function Profile({
+  identity,
+  posts,
+  onUpdate,
+  onSignOut,
+  onOpenBadges,
+  onLike,
+  onDelete,
+}: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -74,6 +86,32 @@ export default function Profile({ identity, onUpdate, onSignOut, onOpenBadges }:
       </header>
 
       <div className="mx-auto max-w-xl px-4 pb-24 sm:px-6">
+        <div className="mb-6 flex flex-col items-center">
+          <button
+            type="button"
+            onClick={() => setSettingsOpen((v) => !v)}
+            className="flex items-center gap-2 rounded-2xl border-2 border-black bg-black px-4 py-3 font-semibold text-white"
+          >
+            <GearIcon className="h-5 w-5 shrink-0" />
+            <span>Settings</span>
+          </button>
+          {settingsOpen && (
+            <div className="mt-3 w-full rounded-2xl border-2 border-black bg-white p-4">
+              <label className="block text-sm font-medium text-black">Email</label>
+              <div className="mt-2 mb-4 truncate rounded-xl border-2 border-black bg-white px-4 py-3 text-black">
+                {identity.email}
+              </div>
+              <button
+                type="button"
+                onClick={onSignOut}
+                className="w-full rounded-full bg-black px-4 py-2.5 font-semibold text-white"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
+        </div>
+
         <div className="flex flex-col items-center">
           <input
             ref={fileRef}
@@ -156,28 +194,15 @@ export default function Profile({ identity, onUpdate, onSignOut, onOpenBadges }:
           <p className="mt-3 text-center text-sm text-black/60">No badges yet.</p>
         )}
 
-        <button
-          type="button"
-          onClick={() => setSettingsOpen((v) => !v)}
-          className="mt-8 flex items-center gap-2 rounded-2xl border-2 border-black bg-black px-4 py-3 font-semibold text-white"
-        >
-          <GearIcon className="h-5 w-5 shrink-0" />
-          <span>Settings</span>
-        </button>
-        {settingsOpen && (
-          <div className="mt-3 rounded-2xl border-2 border-black bg-white p-4">
-            <label className="block text-sm font-medium text-black">Email</label>
-            <div className="mt-2 mb-4 truncate rounded-xl border-2 border-black bg-white px-4 py-3 text-black">
-              {identity.email}
-            </div>
-            <button
-              type="button"
-              onClick={onSignOut}
-              className="w-full rounded-full bg-black px-4 py-2.5 font-semibold text-white"
-            >
-              Sign Out
-            </button>
+        <h3 className="mt-8 text-center text-2xl font-semibold text-black">My Posts</h3>
+        {posts.length > 0 ? (
+          <div className="mt-3 overflow-hidden rounded-2xl border-2 border-black bg-black">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} onLike={onLike} onDelete={onDelete} />
+            ))}
           </div>
+        ) : (
+          <p className="mt-3 text-center text-sm text-black/60">You haven't posted yet.</p>
         )}
       </div>
     </div>

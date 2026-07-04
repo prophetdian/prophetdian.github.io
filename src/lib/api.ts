@@ -82,6 +82,7 @@ export async function buildIdentity(user: User): Promise<Identity> {
 interface PostRow {
   id: string;
   feed: Feed;
+  author_id: string;
   author_name: string;
   author_is_admin: boolean;
   author_badges: BadgeId[];
@@ -92,12 +93,13 @@ interface PostRow {
 }
 
 const POST_COLUMNS =
-  'id, feed, author_name, author_is_admin, author_badges, text, base_likes, created_at, likes(user_id)';
+  'id, feed, author_id, author_name, author_is_admin, author_badges, text, base_likes, created_at, likes(user_id)';
 
 function toPost(row: PostRow, myId: string): Post {
   return {
     id: row.id,
     feed: row.feed,
+    authorId: row.author_id,
     authorName: row.author_name,
     authorIsAdmin: row.author_is_admin,
     authorBadges: row.author_badges,
@@ -132,6 +134,11 @@ export async function createPost(identity: Identity, feed: Feed, text: string): 
     .single();
   if (error) throw error;
   return toPost(data as PostRow, identity.id);
+}
+
+export async function deletePost(postId: string, authorId: string) {
+  const { error } = await supabase.from('posts').delete().match({ id: postId, author_id: authorId });
+  if (error) throw error;
 }
 
 export async function setLike(postId: string, userId: string, liked: boolean) {

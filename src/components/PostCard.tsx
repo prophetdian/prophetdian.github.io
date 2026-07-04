@@ -5,6 +5,7 @@ import { HeartIcon } from './icons';
 interface Props {
   post: Post;
   onLike: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 function timeAgo(ts: number) {
@@ -17,7 +18,7 @@ function timeAgo(ts: number) {
   return `${Math.floor(hours / 24)}d`;
 }
 
-export default function PostCard({ post, onLike }: Props) {
+export default function PostCard({ post, onLike, onDelete }: Props) {
   return (
     <article className="flex gap-3 border-b border-neutral-900 px-4 py-4">
       <div
@@ -60,15 +61,25 @@ export default function PostCard({ post, onLike }: Props) {
         <p className="mt-1 whitespace-pre-wrap break-words text-[15px] leading-snug">
           {post.text}
         </p>
-        <button
-          onClick={() => onLike(post.id)}
-          className={`mt-2 flex items-center gap-1 text-sm transition-colors ${
-            post.likedByMe ? 'text-[#FA00FF]' : 'text-neutral-500 hover:text-[#FA00FF]'
-          }`}
-        >
-          <HeartIcon filled={post.likedByMe} className="h-4 w-4" />
-          <span>{post.likes}</span>
-        </button>
+        <div className="mt-2 flex items-center gap-4">
+          <button
+            onClick={() => onLike(post.id)}
+            className={`flex items-center gap-1 text-sm transition-colors ${
+              post.likedByMe ? 'text-[#FA00FF]' : 'text-neutral-500 hover:text-[#FA00FF]'
+            }`}
+          >
+            <HeartIcon filled={post.likedByMe} className="h-4 w-4" />
+            <span>{post.likes}</span>
+          </button>
+          {onDelete && (
+            <button
+              onClick={() => onDelete(post.id)}
+              className="text-sm text-neutral-500 transition-colors hover:text-red-500"
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
     </article>
   );

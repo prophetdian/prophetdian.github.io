@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase';
 import {
   buildIdentity,
   createPost,
+  deletePost,
   fetchPosts,
   saveProfile,
   signInWithPassword,
@@ -86,6 +87,17 @@ export default function App() {
     }
   }
 
+  function removePost(id: string) {
+    if (!identity) return;
+    const target = posts.find((p) => p.id === id);
+    if (!target || target.authorId !== identity.id) return;
+    setPosts((prev) => prev.filter((p) => p.id !== id));
+    deletePost(id, identity.id).catch(() => {
+      // Restore on failure
+      setPosts((prev) => [target, ...prev]);
+    });
+  }
+
   function toggleLike(id: string) {
     if (!identity) return;
     const target = posts.find((p) => p.id === id);
@@ -114,6 +126,9 @@ export default function App() {
     .sort((a, b) => b.createdAt - a.createdAt);
   const naviPosts = posts
     .filter((p) => p.feed === 'navi')
+    .sort((a, b) => b.createdAt - a.createdAt);
+  const myPosts = posts
+    .filter((p) => p.authorId === identity.id)
     .sort((a, b) => b.createdAt - a.createdAt);
 
   return (
@@ -156,11 +171,14 @@ export default function App() {
         {activeFeed === 'profile' && (
           <Profile
             identity={identity}
+            posts={myPosts}
             onUpdate={updateProfile}
             onSignOut={() => {
               signOut().catch(() => {});
             }}
             onOpenBadges={() => setActiveFeed('badges')}
+            onLike={toggleLike}
+            onDelete={removePost}
           />
         )}
         {activeFeed === 'badges' && <Badges identity={identity} />}

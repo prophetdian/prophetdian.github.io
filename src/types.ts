@@ -7,6 +7,7 @@ export type BadgeId = 'evangelist' | 'pastor' | 'teacher' | 'apostle' | 'prophet
 export interface Post {
   id: string;
   feed: Feed;
+  authorId: string;
   authorName: string;
   authorIsAdmin: boolean;
   authorBadges?: BadgeId[];

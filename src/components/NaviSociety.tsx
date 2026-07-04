@@ -18,6 +18,7 @@ function JoinGate() {
           post={{
             id: 'preview',
             feed: 'navi',
+            authorId: 'preview',
             authorName: 'Prophet Dian',
             authorIsAdmin: true,
             text: 'This is where deeper teaching, prophetic strategy, and direct impartation live — for those planted in Navi Society.',
