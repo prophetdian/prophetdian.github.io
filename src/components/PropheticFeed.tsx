@@ -49,7 +49,7 @@ export default function PropheticFeed({
         identity={identity}
         accent="cyan"
         light
-        placeholder="What's the prophetic word?"
+        placeholder="What's the Word?"
         onPost={onPost}
       />
       <div className="border-b border-neutral-900 px-4 py-3" style={{ background: '#00F7FF' }}>
