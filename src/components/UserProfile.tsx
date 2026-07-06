@@ -29,7 +29,7 @@ export default function UserProfile({ userId, posts, onBack, onLike }: Props) {
   const [loading, setLoading] = useState(true);
 
   const userPosts = posts
-    .filter((p) => p.authorId === userId)
+    .filter((p) => p.authorId === userId && p.feed === 'prophetic')
     .sort((a, b) => b.createdAt - a.createdAt);
   const { isAdmin, badges } = publicStanding(userPosts);
 

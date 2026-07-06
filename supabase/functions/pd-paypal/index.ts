@@ -1,5 +1,5 @@
 // pd-paypal — PayPal Live subscriptions for prophetdian.github.io
-// Covers Navi Society ($500/mo) and the five ministry badges ($10-20/yr).
+// Covers Navi Society ($200/mo) and the five ministry badges ($10-20/yr).
 // verify_jwt: false. Frontend sends NO Authorization header.
 
 const ALLOWED_ORIGINS = [
@@ -32,7 +32,7 @@ interface PlanDef {
 }
 
 const PLANS: Record<string, PlanDef> = {
-  society: { name: "Navi Society", price: "500", interval: "MONTH" },
+  society: { name: "Navi Society", price: "200", interval: "MONTH" },
   evangelist: { name: "Evangelist Badge", price: "10", interval: "YEAR" },
   pastor: { name: "Pastor Badge", price: "10", interval: "YEAR" },
   teacher: { name: "Teacher Badge", price: "10", interval: "YEAR" },
@@ -70,11 +70,15 @@ async function getAccessToken(): Promise<string> {
 }
 
 // Returns a cached or newly created PayPal plan_id for the given plan key.
+// Cache key includes the price so that changing a plan's price here (e.g. a
+// rate change) creates a fresh PayPal plan instead of reusing one billed at
+// the old rate — old cached rows are simply left orphaned in pd_plans.
 async function getOrCreatePlan(token: string, planKey: string): Promise<string> {
   const def = PLANS[planKey];
+  const cacheKey = `${planKey}:${def.price}`;
 
   const cacheRes = await sb(
-    `pd_plans?plan_key=eq.${planKey}&select=paypal_plan_id&order=created_at.desc&limit=1`,
+    `pd_plans?plan_key=eq.${cacheKey}&select=paypal_plan_id&order=created_at.desc&limit=1`,
     { method: "GET" },
   );
   const cached = await cacheRes.json();
@@ -122,7 +126,7 @@ async function getOrCreatePlan(token: string, planKey: string): Promise<string> 
   await sb(`pd_plans`, {
     method: "POST",
     headers: { Prefer: "return=minimal" },
-    body: JSON.stringify({ plan_key: planKey, paypal_plan_id: plan.id, paypal_product_id: prod.id }),
+    body: JSON.stringify({ plan_key: cacheKey, paypal_plan_id: plan.id, paypal_product_id: prod.id }),
   });
 
   return plan.id;

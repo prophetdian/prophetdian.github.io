@@ -155,7 +155,7 @@ export default function App() {
     .filter((p) => p.feed === 'navi')
     .sort((a, b) => b.createdAt - a.createdAt);
   const myPosts = posts
-    .filter((p) => p.authorId === identity.id)
+    .filter((p) => p.authorId === identity.id && p.feed === 'prophetic')
     .sort((a, b) => b.createdAt - a.createdAt);
 
   return (

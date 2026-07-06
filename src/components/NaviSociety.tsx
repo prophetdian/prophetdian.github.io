@@ -45,7 +45,7 @@ function JoinGate({ identity, onJoined }: { identity: Identity; onJoined: () => 
             strategy, and direct impartation for those who are planted in.
           </p>
           <div className="mt-4 text-3xl font-bold">
-            $500<span className="text-base font-normal text-neutral-400">/month</span>
+            $200<span className="text-base font-normal text-neutral-400">/month</span>
           </div>
           <div className="mt-4">
             <PaypalButton
