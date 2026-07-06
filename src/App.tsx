@@ -80,6 +80,13 @@ export default function App() {
       .catch(() => {});
   }, [identity?.id]);
 
+  // Re-derive isNaviMember/badges from pd_subscriptions after a PayPal activation.
+  function refreshIdentity() {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) buildIdentity(session.user).then(setIdentity).catch(() => {});
+    });
+  }
+
   if (status === 'loading') {
     return <div className="h-screen" />;
   }
@@ -197,6 +204,7 @@ export default function App() {
                 onPost={(text, media) => addPost('navi', text, media)}
                 onLike={toggleLike}
                 onOpenProfile={openProfile}
+                onJoined={refreshIdentity}
               />
             )}
             {activeFeed === 'profile' && (
@@ -212,7 +220,7 @@ export default function App() {
                 onDelete={removePost}
               />
             )}
-            {activeFeed === 'badges' && <Badges identity={identity} />}
+            {activeFeed === 'badges' && <Badges identity={identity} onPurchased={refreshIdentity} />}
             {activeFeed === 'dms' && <Dms />}
           </>
         )}

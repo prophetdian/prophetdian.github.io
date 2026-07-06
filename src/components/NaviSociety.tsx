@@ -2,6 +2,7 @@ import type { Identity, Post } from '../types';
 import type { PostMedia } from '../lib/api';
 import Composer from './Composer';
 import PostCard from './PostCard';
+import PaypalButton from './PaypalButton';
 import { StarIcon } from './icons';
 
 interface Props {
@@ -10,9 +11,10 @@ interface Props {
   onPost: (text: string, media?: PostMedia | null) => void;
   onLike: (id: string) => void;
   onOpenProfile: (authorId: string) => void;
+  onJoined: () => void;
 }
 
-function JoinGate() {
+function JoinGate({ identity, onJoined }: { identity: Identity; onJoined: () => void }) {
   return (
     <div className="relative flex-1 overflow-hidden">
       <div className="pointer-events-none select-none blur-sm opacity-40">
@@ -45,22 +47,21 @@ function JoinGate() {
           <div className="mt-4 text-3xl font-bold">
             $500<span className="text-base font-normal text-neutral-400">/month</span>
           </div>
-          <button
-            disabled
-            title="PayPal checkout is launching soon"
-            className="mt-4 w-full cursor-not-allowed rounded-full py-3 font-semibold text-black opacity-60"
-            style={{ background: 'linear-gradient(90deg,#00F7FF,#FA00FF)' }}
-          >
-            Join Navi Society — $500/mo
-          </button>
-          <p className="mt-2 text-xs text-neutral-600">Payments launching soon.</p>
+          <div className="mt-4">
+            <PaypalButton
+              planKey="society"
+              userId={identity.id}
+              email={identity.email}
+              onSuccess={onJoined}
+            />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-export default function NaviSociety({ identity, posts, onPost, onLike, onOpenProfile }: Props) {
+export default function NaviSociety({ identity, posts, onPost, onLike, onOpenProfile, onJoined }: Props) {
   const hasAccess = identity.isAdmin || identity.isNaviMember;
 
   return (
@@ -70,7 +71,7 @@ export default function NaviSociety({ identity, posts, onPost, onLike, onOpenPro
         <p className="text-xs text-neutral-500">Only Prophet Dian posts here.</p>
       </header>
 
-      {!hasAccess && <JoinGate />}
+      {!hasAccess && <JoinGate identity={identity} onJoined={onJoined} />}
 
       {hasAccess && (
         <div className="flex flex-1 flex-col">

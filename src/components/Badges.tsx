@@ -1,11 +1,13 @@
 import type { Identity } from '../types';
 import { BADGES } from '../lib/badges';
+import PaypalButton from './PaypalButton';
 
 interface Props {
   identity: Identity;
+  onPurchased: () => void;
 }
 
-export default function Badges({ identity }: Props) {
+export default function Badges({ identity, onPurchased }: Props) {
   return (
     <div className="flex-1">
       <header className="sticky top-0 z-10 border-b border-neutral-900 bg-black/80 px-4 py-3 backdrop-blur">
@@ -39,39 +41,41 @@ export default function Badges({ identity }: Props) {
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between">
-                  {owned ? (
-                    <div className="text-sm font-semibold" style={{ color: accent }}>
-                      Permanent
-                    </div>
-                  ) : (
-                    <div className="text-lg font-bold">
-                      ${badge.price}
-                      <span className="text-xs font-normal text-neutral-500">/year</span>
-                    </div>
-                  )}
-                  {owned ? (
+                  <div>
+                    {owned ? (
+                      <div className="text-sm font-semibold" style={{ color: accent }}>
+                        Permanent
+                      </div>
+                    ) : (
+                      <div className="text-lg font-bold">
+                        ${badge.price}
+                        <span className="text-xs font-normal text-neutral-500">/year</span>
+                      </div>
+                    )}
+                  </div>
+                  {owned && (
                     <span
                       className="rounded-full px-4 py-1.5 text-xs font-bold text-black"
                       style={{ background: accent }}
                     >
                       OWNED
                     </span>
-                  ) : (
-                    <button
-                      disabled
-                      title="Payments launching soon"
-                      className="cursor-not-allowed rounded-full px-4 py-1.5 text-xs font-semibold text-black opacity-60"
-                      style={{ background: accent }}
-                    >
-                      Get Badge
-                    </button>
                   )}
                 </div>
+                {!owned && (
+                  <div className="mt-3">
+                    <PaypalButton
+                      planKey={badge.id}
+                      userId={identity.id}
+                      email={identity.email}
+                      onSuccess={onPurchased}
+                    />
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
-        <p className="mt-3 text-xs text-neutral-600">Payments launching soon.</p>
       </div>
     </div>
   );

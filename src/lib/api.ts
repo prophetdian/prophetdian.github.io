@@ -1,11 +1,13 @@
 import type { User } from '@supabase/supabase-js';
 import { supabase } from './supabase';
+import { fetchActivePlans } from './subscriptions';
 import type { BadgeId, Feed, Identity, MediaType, Post, PublicProfile } from '../types';
 
 const MEDIA_BUCKET = 'post-media';
 
 const ADMIN_EMAIL = 'prophetdian@gmail.com';
 const PERMANENT_BADGES: BadgeId[] = ['apostle', 'prophet'];
+const BADGE_IDS: BadgeId[] = ['evangelist', 'pastor', 'teacher', 'apostle', 'prophet'];
 
 export function permanentBadgesFor(email: string): BadgeId[] {
   return email.trim().toLowerCase() === ADMIN_EMAIL ? [...PERMANENT_BADGES] : [];
@@ -69,6 +71,10 @@ export async function buildIdentity(user: User): Promise<Identity> {
   }
 
   const isAdmin = email === ADMIN_EMAIL;
+  const activePlans = await fetchActivePlans(user.id);
+  const purchasedBadges = BADGE_IDS.filter((id) => activePlans.includes(id));
+  const badges = [...new Set([...permanentBadgesFor(email), ...purchasedBadges])];
+
   return {
     id: user.id,
     name: profile.name,
@@ -76,8 +82,8 @@ export async function buildIdentity(user: User): Promise<Identity> {
     bio: profile.bio,
     avatar: profile.avatar,
     isAdmin,
-    isNaviMember: isAdmin,
-    badges: permanentBadgesFor(email),
+    isNaviMember: isAdmin || activePlans.includes('society'),
+    badges,
   };
 }
 
